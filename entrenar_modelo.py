@@ -52,12 +52,12 @@ preprocesador = ColumnTransformer(
 
 # Modelo final seleccionado
 modelo = RandomForestRegressor(
-    n_estimators=200,
-    min_samples_leaf=2,
+    n_estimators=60,
+    max_depth=16,
+    min_samples_leaf=3,
     random_state=42,
-    n_jobs=-1
+    n_jobs=1
 )
-
 # Pipeline completo
 pipeline_final = Pipeline(steps=[
     ("preprocesamiento", preprocesador),
@@ -68,6 +68,6 @@ pipeline_final = Pipeline(steps=[
 pipeline_final.fit(X, y)
 
 # Guardar modelo
-joblib.dump(pipeline_final, "modelo_zirconia.joblib", compress=3)
+joblib.dump(pipeline_final, "modelo_zirconia.joblib", compress=9)
 
 print("Modelo guardado correctamente como modelo_zirconia.joblib")
