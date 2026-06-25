@@ -1,10 +1,9 @@
 from flask import Flask, render_template, request
-import pandas as pd
+import numpy as np
 import joblib
 
 app = Flask(__name__)
 
-# Cargar pipeline guardado
 modelo = joblib.load("modelo_zirconia.joblib")
 
 
@@ -25,7 +24,6 @@ def index():
             y = float(request.form["y"])
             z = float(request.form["z"])
 
-            # Validaciones
             if carat <= 0:
                 raise ValueError("El peso en quilates debe ser mayor que cero.")
 
@@ -35,30 +33,31 @@ def index():
             if x <= 0 or y <= 0 or z <= 0:
                 raise ValueError("Las dimensiones x, y y z deben ser mayores que cero.")
 
-            # Datos originales del usuario
-            datos_usuario = pd.DataFrame([{
-                "carat": carat,
-                "cut": cut,
-                "color": color,
-                "clarity": clarity,
-                "depth": depth,
-                "table": table,
-                "x": x,
-                "y": y,
-                "z": z
-            }])
+            # Orden exacto:
+            # carat, cut, color, clarity, depth, table, x, y, z
+            datos_usuario = np.array([[
+                carat,
+                cut,
+                color,
+                clarity,
+                depth,
+                table,
+                x,
+                y,
+                z
+            ]], dtype=object)
 
-            # Predicción
             resultado = modelo.predict(datos_usuario)[0]
-            prediccion = round(resultado, 2)
+            prediccion = round(float(resultado), 2)
 
         except ValueError as e:
             error = str(e)
 
-        except Exception:
+        except Exception as e:
             error = "Ocurrió un error al procesar los datos. Revisa que todos los campos sean válidos."
 
     return render_template("index.html", prediccion=prediccion, error=error)
+
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8000, debug=True)
